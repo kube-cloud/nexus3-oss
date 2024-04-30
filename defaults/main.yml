@@ -24,7 +24,7 @@ nexus_plugin_urls: []
 nexus_onboarding_wizard: false
 nexus_data_dir_permissions: '0750'
 nexus_tmp_dir_permissions: '0750'
-nexus_backup_dir_permission: '0750'
+nexus_backup_dir_permissions: '0750'
 
 # These are the default values for JVM Ram
 # don't touch those unless you have read
