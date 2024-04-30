@@ -499,18 +499,6 @@
     path: "{{ nexus_data_dir }}/admin.password"
   register: admin_password_file
 
-- name: "LOG Admin Passwd File"
-  debug:
-    var: admin_password_file
-
-- name: "LOG Other Vars"
-  debug:
-    msg: "API Response : {{ nexus_api_head_with_defined_password.status }}, Version : {{ nexus_version }}"
-
-- name: "LOG Version Compare to 3.17"
-  debug:
-    msg: "{{ version_compare(nexus_version, '>=', '3.17.0') }}"
-
 - name: Get generated admin password from file (nexus >= 3.17)
   when:
     - admin_password_file.stat.exists
@@ -521,6 +509,10 @@
       ansible.builtin.slurp:
         src: "{{ nexus_data_dir }}/admin.password"
       register: _slurpedpass
+
+    - name: "LOG Admin Passwd File"
+      debug:
+        msg: "Loaded Admin Password : {{ _slurpedpass.content | b64decode }}"
 
     - name: Set default password from slurped content
       ansible.builtin.set_fact:
@@ -537,6 +529,10 @@
     validate_certs: "{{ nexus_api_validate_certs }}"
   register: nexus_api_head_with_default_password
   when: nexus_api_head_with_defined_password.status == 401
+
+- name: "LOG API Call with File Password : [{{ nexus_default_admin_password }}]"
+  debug:
+    var: nexus_api_head_with_default_password
 
 - name: Register default admin password for next operations
   ansible.builtin.set_fact:
