@@ -230,7 +230,7 @@
   ansible.builtin.lineinfile:
     dest: "{{ nexus_installation_dir }}/nexus-latest/bin/nexus.vmoptions"
     regexp: ^-XX:LogFile=.*
-    line: -XX:LogFile={{ nexus_data_dir }}log/jvm.log
+    line: -XX:LogFile={{ nexus_data_dir }}/log/jvm.log
   notify:
     - nexus-service-stop
 
