@@ -216,7 +216,7 @@
     state: directory
     owner: "{{ nexus_os_user }}"
     group: "{{ nexus_os_group }}"
-    mode: "0750"
+    mode: "{{ nexus_data_dir_permissions }}"
 
 - name: Setup Nexus data directory
   ansible.builtin.lineinfile:
@@ -295,7 +295,7 @@
     state: directory
     owner: "{{ nexus_os_user }}"
     group: "{{ nexus_os_group }}"
-    mode: "0750"
+    mode: "{{ nexus_tmp_dir_permissions }}"
 
 - name: Create Nexus backup directory
   ansible.builtin.file:
@@ -303,7 +303,7 @@
     state: directory
     owner: "{{ nexus_os_user }}"
     group: "{{ nexus_os_group }}"
-    mode: "0750"
+    mode: "{{ nexus_backup_dir_permission }}"
   when: nexus_backup_dir_create | bool
 
 - name: Setup Nexus tmp directory
