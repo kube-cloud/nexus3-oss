@@ -298,6 +298,9 @@ nexus_blobstores: []
 #     bucketName: bucket-name
 #     bucketRegion: europe-west1
 #     credentialFilePath:
+#     softQuota:
+#       type: spaceRemainingQuota # OR spaceUsedQuota
+#       limit: 1024 # In MB
 
 # Cleanup Polices
 nexus_repos_cleanup_policies: []

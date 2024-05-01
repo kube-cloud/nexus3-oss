@@ -1,6 +1,10 @@
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import org.sonatype.nexus.common.collect.NestedAttributesMap
+import static org.sonatype.nexus.blobstore.quota.BlobStoreQuotaSupport.LIMIT_KEY
+import static org.sonatype.nexus.blobstore.quota.BlobStoreQuotaSupport.ROOT_KEY
+import static org.sonatype.nexus.blobstore.quota.BlobStoreQuotaSupport.TYPE_KEY
+import static com.google.common.base.Preconditions.checkNotNull
 
 // Define GCS Blobstore Type
 String GCS_BLOBSTORE_TYPE = "Google Cloud Storage";
@@ -39,6 +43,9 @@ parsed_args.each { blobstoreDef ->
                 msg = "S3 blobstore {} created"
             } else if (blobstoreDef.type == "GCS") {
 
+                // Get Custom GCS Config
+                gcsConfig = blobstoreDef.config
+
                 // Log
                 log.info("Create GCS Blobstore : {}", blobstoreDef)
 
@@ -55,9 +62,24 @@ parsed_args.each { blobstoreDef ->
                 nestedAttributesMap = gcpBlobStore.attributes(CONFIG_KEY)
 
                 // Initialize Custom GCS Properties
-                nestedAttributesMap.set(BUCKET_NAME_KEY, blobstoreDef.config.bucketName)
-                nestedAttributesMap.set(REGION_KEY, blobstoreDef.config.bucketRegion)
-                nestedAttributesMap.set(CREDENTIAL_FILE_PATH_KEY, blobstoreDef.config.credentialFilePath)
+                nestedAttributesMap.set(BUCKET_NAME_KEY, gcsConfig.bucketName)
+                nestedAttributesMap.set(REGION_KEY, gcsConfig.bucketRegion)
+                nestedAttributesMap.set(CREDENTIAL_FILE_PATH_KEY, gcsConfig.credentialFilePath)
+
+                // If quotas are provided
+                if (gcsConfig?.softQuota) {
+
+                    // Get Soft Quota
+                    softQuota = gcsConfig.softQuota;
+
+                    // Get Netsted Attributes MAP for the Custom Soft Quotas
+                    nestedAttributeSoftQuota = gcpBlobStore.attributes(ROOT_KEY)
+
+                    // Initialize Soft Quota Informations
+                    nestedAttributeSoftQuota.set(TYPE_KEY, checkNotNull(softQuota.type));
+                    final Long softQuotaLimit = checkNotNull(softQuota.limit);
+                    nestedAttributeSoftQuota.set(LIMIT_KEY, softQuotaLimit * 1000000);
+                }
 
                 // Log
                 log.info("Ready to Create GCS Blobstore : {}, GCS Path : {}", gcpBlobStore)
