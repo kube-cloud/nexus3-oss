@@ -292,6 +292,15 @@ nexus_blobstores: []
 #     bucket: s3-blobstore
 #     accessKeyId: "{{ VAULT_ENCRYPTED_KEY_ID }}"
 #     secretAccessKey: "{{ VAULT_ENCRYPTED_ACCESS_KEY }}"
+# - name: gcs-blobstore
+#   type: GCS
+#   config:
+#     bucketName: bucket-name
+#     bucketRegion: europe-west1
+#     credentialFilePath:
+#     softQuota:
+#       type: spaceRemainingQuota # OR spaceUsedQuota
+#       limit: 1024 # In MB
 
 # Cleanup Polices
 nexus_repos_cleanup_policies: []
