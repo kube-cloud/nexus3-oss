@@ -642,6 +642,9 @@ Delete the default blobstore from the nexus install initial default configuratio
     #     bucketName: bucket-name
     #     bucketRegion: europe-west1
     #     credentialFilePath: "/path/to/gcp_service_account_credentials.json"
+    #     softQuota:
+    #       type: spaceRemainingQuota # OR spaceUsedQuota
+    #       limit: 1024 # In MB
 ```
 
 [Blobstores](https://help.sonatype.com/display/NXRM3/Repository+Management#RepositoryManagement-BlobStores) to create. A blobstore path and a repository blobstore cannot be updated after initial creation (any update here will be ignored on re-provisionning).
