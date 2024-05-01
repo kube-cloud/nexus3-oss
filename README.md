@@ -19,55 +19,56 @@ All configuration can be updated by re-running the role, except for the [blobsto
 _(Created with [gh-md-toc](https://github.com/ekalinin/github-markdown-toc))_
 <!-- Run gh-md-toc --insert README.md to update -->
 <!--ts-->
-* [Ansible Role: Nexus 3 OSS](#ansible-role-nexus-3-oss)
-   * [Table of Contents](#table-of-contents)
-   * [History / Credits](#history--credits)
-   * [Requirements](#requirements)
-   * [Role Variables](#role-variables)
-      * [General variables](#general-variables)
-      * [Download dir for nexus package](#download-dir-for-nexus-package)
-      * [Nexus port, context path and listening IP](#nexus-port-context-path-and-listening-ip)
-      * [Nexus OS user and group](#nexus-os-user-and-group)
-      * [Nexus instance directories](#nexus-instance-directories)
-      * [Nexus JVM setting](#nexus-jvm-setting)
-      * [Plugin installation](#plugin-installation)
-      * [Onboarding Wizard](#onboarding-wizard)
-      * [Admin password](#admin-password)
-      * [Default anonymous access](#default-anonymous-access)
-      * [Public hostname](#public-hostname)
-      * [API access for this role](#api-access-for-this-role)
-      * [Branding capabalities](#branding-capabalities)
-      * [Audit capability](#audit-capability)
-      * [Log4j Visualizer](#log4j-visualizer)
-      * [Reverse proxy setup](#reverse-proxy-setup)
-      * [LDAP configuration](#ldap-configuration)
-      * [Privileges](#privileges)
-      * [Roles](#roles)
-      * [Users](#users)
-      * [Content selectors](#content-selectors)
-      * [Cleanup policies](#cleanup-policies)
-      * [Blobstores and repositories](#blobstores-and-repositories)
-      * [Scheduled tasks](#scheduled-tasks)
-      * [Backups](#backups)
-         * [Restore procedure](#restore-procedure)
-         * [Possible limitations](#possible-limitations)
-      * [Special maintenance/debug variables](#special-maintenancedebug-variables)
-         * [Purge nexus](#purge-nexus)
-         * [Force groovy scripts registration](#force-groovy-scripts-registration)
-         * [Change admin password after first install](#change-admin-password-after-first-install)
-         * [Upgrade nexus to latest version](#upgrade-nexus-to-latest-version)
-            * [Fix upgrade failing on timeout waiting for nexus port](#fix-upgrade-failing-on-timeout-waiting-for-nexus-port)
-         * [Skip provisionning tasks](#skip-provisionning-tasks)
-         * [Force recursive ownership check of blobstores directories](#force-recursive-ownership-check-of-blobstores-directories)
-   * [Dependencies](#dependencies)
-   * [Example Playbook](#example-playbook)
-   * [Development, Contribution and Testing](#development-contribution-and-testing)
-      * [Contributions](#contributions)
-      * [Testing](#testing)
-         * [Groovy syntax](#groovy-syntax)
-         * [Molecule default-xxxx scenarii](#molecule-default-xxxx-scenarii)
-   * [License](#license)
-   * [Author Information](#author-information)
+- [Ansible Role: Nexus 3 OSS](#ansible-role-nexus-3-oss)
+  - [Table of Contents](#table-of-contents)
+  - [History / Credits](#history--credits)
+  - [Requirements](#requirements)
+  - [Role Variables](#role-variables)
+    - [General variables](#general-variables)
+    - [Download dir for nexus package](#download-dir-for-nexus-package)
+    - [Local tmp dir on controller](#local-tmp-dir-on-controller)
+    - [Nexus port, context path and listening IP](#nexus-port-context-path-and-listening-ip)
+    - [Nexus OS user and group](#nexus-os-user-and-group)
+    - [Nexus instance directories](#nexus-instance-directories)
+    - [Nexus JVM setting](#nexus-jvm-setting)
+    - [Plugin installation](#plugin-installation)
+    - [Onboarding Wizard](#onboarding-wizard)
+    - [Admin password](#admin-password)
+    - [Default anonymous access](#default-anonymous-access)
+    - [Public hostname](#public-hostname)
+    - [API access for this role](#api-access-for-this-role)
+    - [Branding capabalities](#branding-capabalities)
+    - [Audit capability](#audit-capability)
+    - [Log4j Visualizer](#log4j-visualizer)
+    - [Reverse proxy setup](#reverse-proxy-setup)
+    - [LDAP configuration](#ldap-configuration)
+    - [Privileges](#privileges)
+    - [Roles](#roles)
+    - [Users](#users)
+    - [Content selectors](#content-selectors)
+    - [Cleanup policies](#cleanup-policies)
+    - [Blobstores and repositories](#blobstores-and-repositories)
+    - [Scheduled tasks](#scheduled-tasks)
+    - [Backups](#backups)
+      - [Restore procedure](#restore-procedure)
+      - [Possible limitations](#possible-limitations)
+    - [Special maintenance/debug variables](#special-maintenancedebug-variables)
+      - [Purge nexus](#purge-nexus)
+      - [Force groovy scripts registration](#force-groovy-scripts-registration)
+      - [Change admin password after first install](#change-admin-password-after-first-install)
+      - [Upgrade nexus to latest version](#upgrade-nexus-to-latest-version)
+        - [Fix upgrade failing on timeout waiting for nexus port](#fix-upgrade-failing-on-timeout-waiting-for-nexus-port)
+      - [Skip provisionning tasks](#skip-provisionning-tasks)
+      - [Force recursive ownership check of blobstores directories](#force-recursive-ownership-check-of-blobstores-directories)
+  - [Dependencies](#dependencies)
+  - [Example Playbook](#example-playbook)
+  - [Development, Contribution and Testing](#development-contribution-and-testing)
+    - [Contributions](#contributions)
+    - [Testing](#testing)
+      - [Groovy syntax](#groovy-syntax)
+      - [Molecule default-xxxx scenarii](#molecule-default-xxxx-scenarii)
+  - [License](#license)
+  - [Author Information](#author-information)
 
 <!-- Added by: olcla, at: jeu 06 oct 2022 23:38:13 CEST -->
 
@@ -635,11 +636,21 @@ Delete the default blobstore from the nexus install initial default configuratio
     #     bucket: s3-blobstore
     #     accessKeyId: "{{ VAULT_ENCRYPTED_KEY_ID }}"
     #     secretAccessKey: "{{ VAULT_ENCRYPTED_ACCESS_KEY }}"
+    # - name: gcs-blobstore
+    #   type: GCS
+    #   config:
+    #     bucketName: bucket-name
+    #     bucketRegion: europe-west1
+    #     credentialFilePath: "/path/to/gcp_service_account_credentials.json"
 ```
 
 [Blobstores](https://help.sonatype.com/display/NXRM3/Repository+Management#RepositoryManagement-BlobStores) to create. A blobstore path and a repository blobstore cannot be updated after initial creation (any update here will be ignored on re-provisionning).
 
 Configuring blobstore on S3 is provided as a convenience and is not part of the automated tests we run on travis. Please note that storing on S3 is only recommended for instances deployed on AWS.
+
+Configuring blobstore on GCS is provided as a convenience and is not part of the automated tests we run on travis.
+Please note that storing on GCS is only recommended for instances deployed on GCP.
+To use GCS Blobstore Type, you must firstly install the required plugin `nexus-blobstore-google-cloud` available on Central Nexus Repository.
 
 ```yaml
     nexus_repos_maven_proxy:
